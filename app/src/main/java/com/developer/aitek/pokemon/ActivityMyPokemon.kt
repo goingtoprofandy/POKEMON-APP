@@ -1,10 +1,10 @@
 package com.developer.aitek.pokemon
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import android.provider.Settings
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -14,48 +14,45 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.developer.aitek.api.NetworkConnectionInterceptor
 import com.developer.aitek.api.RemoteRequestManager
 import com.developer.aitek.api.Repository
-import com.developer.aitek.api.data.ItemPokemon
-import com.developer.aitek.pokemon.databinding.ActivityMainBinding
+import com.developer.aitek.api.data.ItemMyPokemon
+import com.developer.aitek.pokemon.databinding.ActivityMyPokemonBinding
 
-class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
+class ActivityMyPokemon : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMyPokemonBinding
     private lateinit var viewModel: ViewModelMain
     private lateinit var factory: ViewModelFactoryMain
 
-    private lateinit var adapter: Adapter<ItemPokemon>
+    private lateinit var adapter: Adapter<ItemMyPokemon>
 
+    @SuppressLint("HardwareIds")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_my_pokemon)
 
-        val repository = Repository(RemoteRequestManager(
-            NetworkConnectionInterceptor(this@MainActivity),
-            this@MainActivity
-        ))
+        val repository = Repository(
+            RemoteRequestManager(
+                NetworkConnectionInterceptor(this@ActivityMyPokemon),
+                this@ActivityMyPokemon
+            )
+        )
 
         factory = ViewModelFactoryMain(repository)
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_my_pokemon)
         viewModel = ViewModelProvider(this, factory).get(ViewModelMain::class.java)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
+
+        tempDeviceID = Settings.Secure.getString(
+            contentResolver,
+            Settings.Secure.ANDROID_ID)
 
         // Setup Live Cycle
         prepareToLoadLiveCycle()
 
         // Setup View
         prepareToView()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.favorite) {
-            startActivity(Intent(this@MainActivity, ActivityMyPokemon::class.java))
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     private fun prepareToView() {
@@ -65,17 +62,12 @@ class MainActivity : AppCompatActivity() {
                 itemPokemonName.text = item.name
             },
             { _, item ->
-                tempID = item.id
+                tempID = item.pokemon_id
                 startActivity(Intent(this, AcitivityDetail::class.java))
             })
 
         binding.mainListsPokemon.adapter = adapter
         binding.mainListsPokemon.layoutManager = LinearLayoutManager(this)
-
-        viewModel.loadData {
-            Toast.makeText(this@MainActivity, it, Toast.LENGTH_SHORT)
-                .show()
-        }
     }
 
     private fun prepareToLoadLiveCycle() {
@@ -91,9 +83,17 @@ class MainActivity : AppCompatActivity() {
                 }
             })
 
-            dataRes.observe(owner, {
+            dataMyRes.observe(owner, {
                 adapter.data = it.data
             })
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.myLists(0, tempDeviceID) {
+            Toast.makeText(this@ActivityMyPokemon, it, Toast.LENGTH_SHORT)
+                .show()
         }
     }
 }

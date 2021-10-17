@@ -12,7 +12,14 @@
         android:theme="@style/Theme.Pokemon"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <activity android:name=".AcitivityDetail"
+        <activity android:name=".ActivityMyPokemon"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name=".AcitivityDetail"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -21,6 +28,7 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

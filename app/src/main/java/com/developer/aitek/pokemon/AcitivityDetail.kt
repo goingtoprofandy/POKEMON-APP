@@ -165,7 +165,9 @@ class AcitivityDetail : AppCompatActivity() {
     }
 
     private fun loadDetailData(onSuccess: () -> Unit) {
-        viewModel.detailData(tempID, tempDeviceID) {
+        viewModel.detailData(tempID, tempDeviceID, {
+            Toast.makeText(this@AcitivityDetail, it, Toast.LENGTH_SHORT).show()
+        }) {
             Toast.makeText(this@AcitivityDetail, it, Toast.LENGTH_SHORT)
                 .show()
             onSuccess()

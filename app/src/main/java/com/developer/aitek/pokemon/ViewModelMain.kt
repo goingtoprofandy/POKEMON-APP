@@ -12,6 +12,7 @@ class ViewModelMain(
 ): ViewModel() {
 
     val dataRes = MutableLiveData<CustomResponsePagination<MutableList<ItemPokemon>>>()
+    val dataMyRes = MutableLiveData<CustomResponsePagination<MutableList<ItemMyPokemon>>>()
     val dataDetailRes = MutableLiveData<CustomResponseDetail<DataDetailPokemon,
             MetaDetailPokemon>>()
     val isLoading = MutableLiveData<Boolean>().apply { value = false }
@@ -31,12 +32,13 @@ class ViewModelMain(
         }
     }
 
-    fun detailData(id:String, deviceID: String, onError: (String) -> Unit) {
+    fun detailData(id:String, deviceID: String, onError: (String) -> Unit, onSuccess: (String) -> Unit) {
         isLoading.postValue(true)
         Coroutines.main {
             try {
                 val response = repository.detail(id, deviceID)
                 dataDetailRes.postValue(response)
+                onSuccess(response.message)
             } catch (e: ApiException) {
                 onError(e.message.toString())
             } catch (e: ConnectionException) {
@@ -103,6 +105,22 @@ class ViewModelMain(
                 val response = repository.release(id, deviceID)
                 if (response.meta != null) onSuccess(response.message)
                 else onError(response.message)
+            } catch (e: ApiException) {
+                onError(e.message.toString())
+            } catch (e: ConnectionException) {
+                onError(e.message.toString())
+            }
+            isLoading.postValue(false)
+        }
+    }
+
+    fun myLists(page:Int = 0, deviceID: String,
+                    onError: (String) -> Unit) {
+        isLoading.postValue(true)
+        Coroutines.main {
+            try {
+                val response = repository.my(page, deviceID)
+                dataMyRes.postValue(response)
             } catch (e: ApiException) {
                 onError(e.message.toString())
             } catch (e: ConnectionException) {

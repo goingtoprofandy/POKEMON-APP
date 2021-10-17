@@ -6,3 +6,9 @@ data class ItemPokemon(
     var id: String
 )
 
+data class ItemMyPokemon(
+    var name: String,
+    var id: String,
+    var pokemon_id: String,
+    var device_id: String
+)

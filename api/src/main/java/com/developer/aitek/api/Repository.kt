@@ -31,4 +31,8 @@ class Repository(
         return apiRequest { remoteRequestManager.release(id, deviceID) }
     }
 
+    suspend fun my(page: Int = 0, deviceID: String): CustomResponsePagination<MutableList<ItemMyPokemon>> {
+        return apiRequest { remoteRequestManager.my(page, deviceID) }
+    }
+
 }

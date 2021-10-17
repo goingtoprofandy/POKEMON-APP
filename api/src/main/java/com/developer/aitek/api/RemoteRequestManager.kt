@@ -51,6 +51,12 @@ interface RemoteRequestManager {
         @Query("device_id") device_id: String,
     ): Response<CustomResponseMeta<MetaDetailPokemon?>>
 
+    @GET("my/index")
+    suspend fun my(
+        @Query("page") page: Int,
+        @Query("device_id") device_id: String,
+    ): Response<CustomResponsePagination<MutableList<ItemMyPokemon>>>
+
     companion object{
         @SuppressLint("HardwareIds")
         operator fun invoke(
